@@ -206,11 +206,11 @@ function parseINI(src,name,disableStrict) {
 	var currKey = "";
 	
 	for (var i = 0; i < src.length; i++) {
-		var curr = src[i];
+		var curr = src.charAt(i);
 		if (i > 0) {
-			prev = src[i-1];
+			prev = src.charAt(i - 1);
 		}
-		next = src[i+1];
+		next = src.charAt(i + 1);
 		switch(curr) {
 			case "[": {
 				if ((!inSection) && (!inKey) && (!inValue)) {
@@ -353,32 +353,9 @@ var out;
 		}
 	}
 	if (!exists) {
-		//alert("ERROR! INI: " + ININame + " does not exist!");
+		// alert("ERROR! INI: " + ININame + " does not exist!");
 		return "failed!";
 	} else {
 		return out;
 	}
 }
-
-//updated to test whitspace removal
-var test = "[[[la              \t\t\t\t\t\t\t\t\t\t\t\t\t\t]\nfalala=lalalalalalalalala\n[da]\n[kitty]\n]feline[=cat\n[la]\n                      pussy      =          also means cat\n[DELETE ME]\n[cool games]\ngame1=MineCraft\ngame2=Halo 4\ngame3=Arcuz\ngame4=Epic Battle Fantasy 4\ngame5=Fatcat"
-//alert(test);
-var INIStore = new INIManager();
-INIStore.registerINI(test,"myINI");
-var test2 = INIStore.checkoutINI("myINI");
-var test1 = "";
-var INI_S = test2.toString();
-test1 += "ORIGINAL:\n" + INI_S + "\n\n";
-INIStore.INILib[0].addSection("I am a new section");
-INIStore.INILib[0].addSection("I am a new section"); //cause duplicate section error!
-INIStore.INILib[0].addKey("I am a new section","New Key","a new key is added!");
-INIStore.INILib[0].addKey("I am a new section","New Key","a new key is added!"); //cause duplicate key error!
-INIStore.INILib[0].reNameSection("I am a new section","New section re-named");
-INIStore.INILib[0].reNameKey("New section re-named","New Key","re-named new key");
-INIStore.INILib[0].changeKeyValue("la","falala","Deck the halls with bows of holly, fa-la-la-la-la-la-la-la-la!");
-INIStore.INILib[0].removeSection("DELETE ME");
-INIStore.INILib[0].removeKey("cool games","game2");
-var test3 = INIStore.checkoutINI("myINI");
-var INI_S_2 = test3.toString();
-test1 += "MODIFIED:\n" + INI_S_2;
-alert(test1);

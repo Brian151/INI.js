@@ -2,8 +2,34 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<script src="INI.js"></script>
 	</head>
 	<body>
+		<textarea id="out" width="90%" height="90%"></textarea>
+		<script src="INI.js"></script>
+		<script type="text/javascript">
+			var out = document.getElementById("out");
+
+			//updated to test whitspace removal
+			var test = "[[[la              \t\t\t\t\t\t\t\t\t\t\t\t\t\t]\nfalala=lalalalalalalalala\n[da]\n[kitty]\n]feline[=cat\n[la]\n                      pussy      =          also means cat\n[DELETE ME]\n[cool games]\ngame1=MineCraft\ngame2=Halo 4\ngame3=Arcuz\ngame4=Epic Battle Fantasy 4\ngame5=Fatcat";
+			var INIStore = new INIManager();
+			INIStore.registerINI(test,"myINI");
+			var test2 = INIStore.checkoutINI("myINI");
+			var test1 = "";
+			var INI_S = test2.toString();
+			test1 += "ORIGINAL:\n" + INI_S + "\n\n";
+			INIStore.INILib[0].addSection("I am a new section");
+			INIStore.INILib[0].addSection("I am a new section"); //cause duplicate section error!
+			INIStore.INILib[0].addKey("I am a new section","New Key","a new key is added!");
+			INIStore.INILib[0].addKey("I am a new section","New Key","a new key is added!"); //cause duplicate key error!
+			INIStore.INILib[0].reNameSection("I am a new section","New section re-named");
+			INIStore.INILib[0].reNameKey("New section re-named","New Key","re-named new key");
+			INIStore.INILib[0].changeKeyValue("la","falala","Deck the halls with bows of holly, fa-la-la-la-la-la-la-la-la!");
+			INIStore.INILib[0].removeSection("DELETE ME");
+			INIStore.INILib[0].removeKey("cool games","game2");
+			var test3 = INIStore.checkoutINI("myINI");
+			var INI_S_2 = test3.toString();
+			test1 += "MODIFIED:\n" + INI_S_2;
+			out.value = test1;
+		</script>
 	</body>
 </html>
