@@ -1,181 +1,167 @@
-//INI.JS
-//by ETXAlienRobot201
-//Copyright (C) Crystalien Redux Project 2015 - 2016
+// INI.JS
+// by ETXAlienRobot201 (aka Brian151 (github))
+// Copyright (C) Crystalien Redux Project 2015 - 2017
 
 
 var counter = 0;
 
-function INI(name,notStrict){
+function INI(name,notStrict) {
     this.sections = [];
 	this.name = name; //only useful if INI object is stored in an array
 	this.strict = false;
 	if (!notStrict){
 		this.strict = true;
 	}
-	
-	this.createSection = function(index){
-		var tempS = [];
-		this.sections.push(tempS);
-		tempS.push("main"); //default section header
-		tempS.push([]); //key
-		tempS.push([]); //value
+}
+INI.prototype.createSection = function(index) {
+	var tempS = [];
+	this.sections.push(tempS);
+	tempS.push("main"); //default section header
+	tempS.push([]); //key
+	tempS.push([]); //value
+}
+INI.prototype.findValue = function(section,key,flagDupe) {
+	var out = "data_missing";
+	if (flagDupe) {
+		out = false;
 	}
-	
-	this.findValue = function(section,key,flagDupe){
-		var out = "data_missing";
-		if (flagDupe) {
-			out = false;
-		}
-		for (var i=0; i < this.sections.length; i++){
-			if(this.sections[i][0] == section){
-				for (var i2=0; i2 < this.sections[i][1].length; i2++){
-					if (this.sections[i][1][i2] == key){
-						out = this.sections[i][2][i2];
-						if (flagDupe) {
-							out = true;
-							//console.log("DUPLICATE KEY (" + key + ") FOUND!");
-						}
-						break;
+	for (var i=0; i < this.sections.length; i++) {
+		if(this.sections[i][0] == section) {
+			for (var i2=0; i2 < this.sections[i][1].length; i2++) {
+				if (this.sections[i][1][i2] == key) {
+					out = this.sections[i][2][i2];
+					if (flagDupe) {
+						out = true;
+						//console.log("DUPLICATE KEY (" + key + ") FOUND!");
 					}
+					break;
 				}
 			}
 		}
-		return out;
 	}
-	
-	this.getSection = function(section,flagDupe) {
-		var out = ["data_missing",[],[]];
-		if (flagDupe) {
-			out = false;
-		}
-		for (var i=0; i < this.sections.length; i++){
-			if(this.sections[i][0] == section){
-				out = this.sections[i];
-				if (flagDupe) {
-					out = true;
-					//console.log("DUPLICATE SECTION (" + section + ") FOUND!");
-				}
-				break;
-			}
-		}
-		return out;
-	}
-	
-	this.toString = function(){
-	var out = "";
-		for (var i=0; i < this.sections.length; i++){
-			out += "\n\n[" + this.sections[i][0] + "]";
-			for (var i2=0; i2 < this.sections[i][1].length; i2++){
-				out+= "\n" + this.sections[i][1][i2] + "=" + this.sections[i][2][i2];
-			}
-		}
 	return out;
+}
+INI.prototype.getSection = function(section,flagDupe) {
+	var out = ["data_missing",[],[]];
+	if (flagDupe) {
+		out = false;
 	}
-	
-	//strict mode methods merged into the data-reading methods
-	
-	//INI-writing methods:
-	
-	//add section <name>
-	this.addSection = function(name){
-		if(name){
-			var failed = false;
-			if(this.strict){
-				failed = this.getSection(name,true);
+	for (var i=0; i < this.sections.length; i++) {
+		if(this.sections[i][0] == section) {
+			out = this.sections[i];
+			if (flagDupe) {
+				out = true;
+				//console.log("DUPLICATE SECTION (" + section + ") FOUND!");
 			}
-			if(!failed){
-			this.createSection(this.sections.length);
-			this.sections[this.sections.length-1][0] = name;
-			}
+			break;
 		}
 	}
-	
-	//add key <keyName> to section <secName> , and set its value to <value>
-	this.addKey =  function(secName,keyName,keyValue){
-		for (var i=0; i < this.sections.length; i++){
-			if (this.sections[i][0] == secName) {
-				var failed = false;
-				if (this.strict) {
-					failed = this.findValue(secName,keyName,true);
-				}
-				if (!failed) {
-					this.sections[i][1].push(keyName);
-					this.sections[i][2].push(keyValue);
-				}
-			}
+	return out;
+}
+INI.prototype.toString = function() {
+var out = "";
+	for (var i=0; i < this.sections.length; i++) {
+		out += "\n\n[" + this.sections[i][0] + "]";
+		for (var i2=0; i2 < this.sections[i][1].length; i2++) {
+			out+= "\n" + this.sections[i][1][i2] + "=" + this.sections[i][2][i2];
 		}
 	}
-	
-	//rename section <secName> to <secName2>
-	this.reNameSection = function(secName,secName2) {
+return out;
+}
+//strict mode methods merged into the data-reading methods
+//INI-writing methods:
+//add section <name>
+INI.prototype.addSection = function(name) {
+	if(name) {
 		var failed = false;
-		if (this.strict){
-			failed = this.getSection(secName2,true);
+		if(this.strict) {
+			failed = this.getSection(name,true);
 		}
-		if (!failed){
-			for (var i=0; i < this.sections.length; i++){
-				if (this.sections[i][0] == secName) {
-					this.sections[i][0] = secName2;
-				}
-			}
+		if(!failed) {
+		this.createSection(this.sections.length);
+		this.sections[this.sections.length-1][0] = name;
 		}
 	}
-	
-	//rename key <keyName> to <keyName2> ,within section <secName>
-	this.reNameKey = function(secName,keyName,keyName2){
-		for (var i=0; i < this.sections.length; i++) {
+}
+//add key <keyName> to section <secName> , and set its value to <value>
+INI.prototype.addKey =  function(secName,keyName,keyValue) {
+	for (var i=0; i < this.sections.length; i++) {
+		if (this.sections[i][0] == secName) {
 			var failed = false;
-			if (this.sections[i][0] == secName){ 
-				if (this.strict){
-					failed = this.findValue(secName,keyName2,true);
-				}
-				if (!failed){
-					for (var i2=0; i2 < this.sections[i][1].length; i2++) {
-						if (this.sections[i][1][i2] == keyName) {
-							this.sections[i][1][i2] = keyName2;
-						}
-					}
-				}
+			if (this.strict) {
+				failed = this.findValue(secName,keyName,true);
+			}
+			if (!failed) {
+				this.sections[i][1].push(keyName);
+				this.sections[i][2].push(keyValue);
 			}
 		}
 	}
-	
-	//change the value of key <keyName> to <value> , within section <secName>
-	this.changeKeyValue = function(secName,keyName,value){
-		for (var i=0; i < this.sections.length; i++) {
-			if(this.sections[i][0] == secName){
-					for (var i2=0; i2 < this.sections[i][1].length; i2++) {
-						if (this.sections[i][1][i2] == keyName) {
-							this.sections[i][2][i2] = value;
-					}
-				}
-			}
-		}
+}
+//rename section <secName> to <secName2>
+INI.prototype.reNameSection = function(secName,secName2) {
+	var failed = false;
+	if (this.strict) {
+		failed = this.getSection(secName2,true);
 	}
-	
-	//remove section <secName> from INI
-	this.removeSection = function(secName) {
+	if (!failed) {
 		for (var i=0; i < this.sections.length; i++) {
 			if (this.sections[i][0] == secName) {
-				this.sections.splice(i,1);
+				this.sections[i][0] = secName2;
 			}
 		}
 	}
-	
-	//remove key <key> from section <secName>
-	this.removeKey = function(secName,keyName){
-		for (var i=0; i < this.sections.length; i++) {
-			if (this.sections[i][0] == secName) {
+}
+//rename key <keyName> to <keyName2> ,within section <secName>
+INI.prototype.reNameKey = function(secName,keyName,keyName2) {
+	for (var i=0; i < this.sections.length; i++) {
+		var failed = false;
+		if (this.sections[i][0] == secName){ 
+			if (this.strict) {
+				failed = this.findValue(secName,keyName2,true);
+			}
+			if (!failed) {
 				for (var i2=0; i2 < this.sections[i][1].length; i2++) {
 					if (this.sections[i][1][i2] == keyName) {
-						this.sections[i][1].splice(i2,1);
-						this.sections[i][2].splice(i2,1);
+						this.sections[i][1][i2] = keyName2;
 					}
 				}
 			}
 		}
 	}
-	
+}
+//change the value of key <keyName> to <value> , within section <secName>
+INI.prototype.changeKeyValue = function(secName,keyName,value) {
+	for (var i=0; i < this.sections.length; i++) {
+		if(this.sections[i][0] == secName) {
+				for (var i2=0; i2 < this.sections[i][1].length; i2++) {
+					if (this.sections[i][1][i2] == keyName) {
+						this.sections[i][2][i2] = value;
+				}
+			}
+		}
+	}
+}
+//remove section <secName> from INI
+INI.prototype.removeSection = function(secName) {
+	for (var i=0; i < this.sections.length; i++) {
+		if (this.sections[i][0] == secName) {
+			this.sections.splice(i,1);
+		}
+	}
+}
+//remove key <key> from section <secName>
+INI.prototype.removeKey = function(secName,keyName) {
+	for (var i=0; i < this.sections.length; i++) {
+		if (this.sections[i][0] == secName) {
+			for (var i2=0; i2 < this.sections[i][1].length; i2++) {
+				if (this.sections[i][1][i2] == keyName) {
+					this.sections[i][1].splice(i2,1);
+					this.sections[i][2].splice(i2,1);
+				}
+			}
+		}
+	}
 }
 
 //removes trailing whitespace, now supports tab and is in a separate utility function
@@ -194,8 +180,8 @@ function whiteSpace(input){
 	return out;
 }
 
-function parseINI(src,name,disableStrict){
-    if (!name){
+function parseINI(src,name,disableStrict) {
+    if (!name) {
      name = "INI_" + counter;
      counter++;
     }
@@ -204,7 +190,7 @@ function parseINI(src,name,disableStrict){
 	var kC = 0;
 	output.createSection(sC);
 	//console.log(JSON.stringify(output.sections));
-	if (!disableStrict){
+	if (!disableStrict) {
 	var sectionNames = [];
 	var keyNames = [];
 	output.strict = true;
@@ -339,43 +325,39 @@ function parseINI(src,name,disableStrict){
 	return output;
 }
 
-function INIManager(){
+function INIManager() {
 	this.INILib = [];
-	
-	this.registerINI = function(txt,id,notStrict){
-		var temp = parseINI(txt,id,notStrict);
-		this.INILib.push(temp);
-	}
-	
-	this.getIndexOfINI = function(INIsearch){
-		var out = -1;
-		for (var i; i < this.INILib.length; i++){
-			if (this.INILib[i].name == INIsearch){
-				out = i;
-			}
+}
+INIManager.prototype.registerINI = function(txt,id,notStrict) {
+	var temp = parseINI(txt,id,notStrict);
+	this.INILib.push(temp);
+}
+INIManager.prototype.getIndexOfINI = function(INIsearch) {
+	var out = -1;
+	for (var i; i < this.INILib.length; i++) {
+		if (this.INILib[i].name == INIsearch) {
+			out = i;
 		}
+	}
+	return out;
+}
+INIManager.prototype.checkoutINI = function(ININame) {
+var exists = false;
+var out;
+	for (i=0; i < this.INILib.length; i++) {
+		if (this.INILib[i].name == ININame) {
+			exists = true;
+			out = this.INILib[i];
+		} else {
+		continue;
+		}
+	}
+	if (!exists) {
+		//alert("ERROR! INI: " + ININame + " does not exist!");
+		return "failed!";
+	} else {
 		return out;
 	}
-	
-	this.checkoutINI = function(ININame){
-	var exists = false;
-	var out;
-		for (i=0; i < this.INILib.length; i++){
-			if (this.INILib[i].name == ININame) {
-				exists = true;
-				out = this.INILib[i];
-			} else {
-			continue;
-			}
-		}
-		if (!exists){
-			//alert("ERROR! INI: " + ININame + " does not exist!");
-			return "failed!";
-		} else {
-			return out;
-		}
-	}
-
 }
 
 //updated to test whitspace removal
